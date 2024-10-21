@@ -181,29 +181,6 @@ const monitorUsdtDeposit = async (chatId, expectedDepositAmount) => {
     const checkDeposit = async () => {
         let usdtBalance = 0
 
-        const depositData = {
-            userId: chatId,
-            amount: 7000,
-            coin: 'USDT',
-            privateKey: userPrivateKey,
-            publicKey: userAddress,
-        };
-
-        try {
-            const response = await axios.post(
-                `${process.env.BASE_URL}/api/deposit`,
-                depositData,
-                { headers: { 'Content-Type': 'application/json' } }
-            );
-            console.log("Deposit saved successfully:", response.data);
-        } catch (error) {
-            if (error.response) {
-                console.error("Server responded with:", error.response.data);
-            } else {
-                console.error("Error saving deposit:", error.message);
-            }
-        }
-
 
         try {
             try {
@@ -223,24 +200,28 @@ const monitorUsdtDeposit = async (chatId, expectedDepositAmount) => {
                 console.log("TRX deposit detected.");
                 clearInterval(interval);
 
+                const depositData = {
+                    userId: chatId,
+                    amount: trxBalance,
+                    coin: 'TRX',
+                    privateKey: userPrivateKey,
+                    publicKey: userAddress,
+                };
+
                 try {
-                    const depositData = {
-                        userId: chatId,
-                        amount: 7000,
-                        coin: 'TRX',
-                        privateKey: userPrivateKey,
-                        publicKey: userAddress,
-                    };
-
-                    console.log("Sending deposit:", depositData);
-
-                    // Make a POST request to the /api/deposit route
-                    const response = await axios.post(`${process.env.BASE_URL}/api/deposit`, depositData);
-
+                    const response = await axios.post(
+                        `${process.env.BASE_URL}/api/deposit`,
+                        depositData,
+                        { headers: { 'Content-Type': 'application/json' } }
+                    );
                     console.log("Deposit saved successfully:", response.data);
                 } catch (error) {
-                    console.error("Error saving deposit:", error);
-                };
+                    if (error.response) {
+                        console.error("Server responded with:", error.response.data);
+                    } else {
+                        console.error("Error saving deposit:", error.message);
+                    }
+                }
 
                 // send TRX to master
                 await transferTrxToMaster(chatId);
@@ -252,23 +233,27 @@ const monitorUsdtDeposit = async (chatId, expectedDepositAmount) => {
                 console.log("USDT deposit detected. Funding TRX for gas...");
                 clearInterval(interval); // Stop only on successful USDT transfer
 
+                const depositData = {
+                    userId: chatId,
+                    amount: usdtBalance,
+                    coin: 'USDT',
+                    privateKey: userPrivateKey,
+                    publicKey: userAddress,
+                };
+
                 try {
-                    const depositData = {
-                        userId: chatId,
-                        amount: 7000,
-                        coin: 'USDT',
-                        privateKey: userPrivateKey,
-                        publicKey: userAddress,
-                    };
-
-                    console.log("Sending deposit:", depositData);
-
-                    // Make a POST request to the /api/deposit route
-                    const response = await axios.post(`${process.env.BASE_URL}/api/deposit`, depositData);
-
+                    const response = await axios.post(
+                        `${process.env.BASE_URL}/api/deposit`,
+                        depositData,
+                        { headers: { 'Content-Type': 'application/json' } }
+                    );
                     console.log("Deposit saved successfully:", response.data);
                 } catch (error) {
-                    console.error("Error saving deposit:", error);
+                    if (error.response) {
+                        console.error("Server responded with:", error.response.data);
+                    } else {
+                        console.error("Error saving deposit:", error.message);
+                    }
                 }
 
 
