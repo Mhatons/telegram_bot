@@ -35,7 +35,11 @@ module.exports = function getMenu() {
                     { text: '❓ FAQ', callback_data: 'faq' },
                 ],
                 [
-                    { text: '📢 Channel', callback_data: 'channel' },
+                    // { text: '📢 Channel', callback_data: 'channel' },
+                    {
+                        text: '📢 Channel',
+                        url: 'https://t.me/portalearn_trades' // Direct link button
+                    },
                     { text: '💬 Chat', callback_data: 'chat' },
                     { text: '🆘 Support', callback_data: 'support' }
                 ],
