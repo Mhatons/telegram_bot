@@ -29,11 +29,25 @@ router.post("/", async (req, res) => {
 });
 
 
+router.get("/", async (req, res) => {
+    try {
+        let admins = await adminModel
+            .find()
+            .sort({ createdAt: -1 })
+            .lean()
+        res.send(admins)
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Internal server error")
+    }
+});
+
+
+
 
 // Login admin Route
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
-    console.log("%%%%%%%%%%%%", email, password)
 
     try {
         // Check if the admin exists
